@@ -1,0 +1,68 @@
+{
+  "w": [
+    {
+      "filename": "leaf_scald_val (48).jpg",
+      "prediction": "leaf_scald",
+      "timestamp": "2026-03-12 22:19:42"
+    },
+    {
+      "filename": "healthy_val (78).jpg",
+      "prediction": "healthy",
+      "timestamp": "2026-03-12 22:27:55"
+    },
+    {
+      "filename": "healthy_val (53).jpg",
+      "prediction": "healthy",
+      "timestamp": "2026-03-12 22:28:48"
+    },
+    {
+      "filename": "brown_spot (1).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:29:56"
+    },
+    {
+      "filename": "narrow-brown-leaf-spot-of-rice-2.jpg",
+      "prediction": "narrow_brown_spot",
+      "timestamp": "2026-03-12 22:45:38"
+    }
+  ],
+  "s": [
+    {
+      "filename": "brown_spot (10).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:29:28"
+    }
+  ],
+  "q": [
+    {
+      "filename": "brown_spot (6).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:31:17"
+    },
+    {
+      "filename": "brown_spot (10).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:31:28"
+    },
+    {
+      "filename": "brown_spot (10).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:34:31"
+    },
+    {
+      "filename": "brown_spot (3).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:42:44"
+    },
+    {
+      "filename": "brown_spot (9).jpg",
+      "prediction": "brown_spot",
+      "timestamp": "2026-03-12 22:43:16"
+    },
+    {
+      "filename": "healthy_val (58).jpg",
+      "prediction": "healthy",
+      "timestamp": "2026-03-12 22:44:08"
+    }
+  ]
+}

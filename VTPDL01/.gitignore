@@ -1,0 +1,8 @@
+venv/
+.idea/
+.ipynb_checkpoints/
+uploads/
+__pycache__/
+.DS_Store
+DATA_SET/
+CODE/RiceLeafsDisease/

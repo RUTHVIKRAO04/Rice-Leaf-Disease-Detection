@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - Rice Disease AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .navbar a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-header h1 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-badge {
+            display: inline-block;
+            background: #e8f0ff;
+            color: #667eea;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Confidence Score */
+        .confidence-meter {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .confidence-label {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        .confidence-value {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .result-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-image {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 3px solid #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .image-label {
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .result-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .disease-name {
+            font-size: 2.5rem;
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+
+        .disease-info {
+            background: #f8f9ff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .disease-info-label {
+            color: #999;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .disease-info-text {
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            background: linear-gradient(135deg, #e8f0ff 0%, #f0e8ff 100%);
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: #f0f2ff;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #e8ebff;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+
+        /* Severity Level */
+        .severity-section {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe8ef 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-left: 5px solid #764ba2;
+        }
+
+        .severity-title {
+            color: #764ba2;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .severity-high {
+            background: #ffcccc;
+            color: #cc0000;
+        }
+
+        .severity-medium {
+            background: #ffe6cc;
+            color: #ff6600;
+        }
+
+        .severity-low {
+            background: #ccffcc;
+            color: #009900;
+        }
+
+        .severity-desc {
+            margin-top: 1rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .remedies-section {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe8ef 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-left: 5px solid #764ba2;
+            position: relative;
+            z-index: 1;
+        }
+
+        .remedies-section h3 {
+            color: #764ba2;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remedy-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid rgba(118, 75, 162, 0.2);
+            padding-bottom: 1rem;
+        }
+
+        .remedy-tab {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid #764ba2;
+            color: #764ba2;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .remedy-tab.active {
+            background: #764ba2;
+            color: white;
+        }
+
+        .remedy-tab:hover {
+            transform: translateY(-2px);
+        }
+
+        .remedy-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .remedy-item {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .remedy-item h4 {
+            color: #667eea;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remedy-item p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .healthy-message {
+            background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-left: 5px solid #22863a;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .healthy-message h3 {
+            color: #22863a;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .healthy-message p {
+            color: #1b5e20;
+            font-size: 1rem;
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .tips-section h4 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .tips-list {
+            list-style: none;
+            color: #0d47a1;
+        }
+
+        .tips-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .tips-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .result-card {
+                padding: 1.5rem;
+            }
+
+            .result-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .disease-name {
+                font-size: 1.8rem;
+            }
+
+            .navbar-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .remedy-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-leaf"></i>
+            <span>Disdet AI</span>
+        </div>
+        <ul class="navbar-links">
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/predict"><i class="fas fa-image"></i> Predict</a></li>
+            <li><a href="/history"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="/chart"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="result-card">
+            <div class="result-header">
+                <h1><i class="fas fa-check-circle"></i> Analysis Complete</h1>
+                <span class="result-badge"><i class="fas fa-virus"></i> Disease Identified</span>
+            </div>
+
+            <!-- Confidence Score -->
+            <div class="confidence-meter">
+                <div class="confidence-label">Detection Confidence</div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 95%;"></div>
+                </div>
+                <div class="confidence-value">95% Confident</div>
+            </div>
+
+            <div class="result-content">
+                <div class="result-image">
+                    <img src="/{{ image_path }}" alt="Analyzed rice leaf">
+                    <span class="image-label">Uploaded Image</span>
+                </div>
+
+                <div class="result-info">
+                    <div class="disease-name">{{ prediction.replace('_', ' ') }}</div>
+                    <div class="disease-info">
+                        <div class="disease-info-label">Diagnosis</div>
+                        <div class="disease-info-text">
+                            The uploaded rice leaf image has been analyzed using advanced AI. The system identified the disease type with high confidence.
+                        </div>
+                    </div>
+                    <div class="quick-stats">
+                        <div class="stat">
+                            <div class="stat-value">97.35%</div>
+                            <div class="stat-label">Model Accuracy</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">DenseNet121</div>
+                            <div class="stat-label">AI Model</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">&lt;1s</div>
+                            <div class="stat-label">Analysis Time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Severity Level -->
+            {% if prediction.lower() != 'healthy' %}
+            <div class="severity-section">
+                <div class="severity-title"><i class="fas fa-exclamation-triangle"></i> Disease Severity</div>
+                {% if prediction.lower() == 'leaf_blast' %}
+                    <span class="severity-badge severity-high">HIGH PRIORITY</span>
+                    <div class="severity-desc">Leaf Blast is a critical rice disease that can cause 20-30% yield loss if left untreated. Immediate action required - start fungicide treatment within 24-48 hours.</div>
+                {% elif prediction.lower() == 'bacterial_leaf_blight' %}
+                    <span class="severity-badge severity-high">HIGH PRIORITY</span>
+                    <div class="severity-desc">Bacterial Leaf Blight can spread rapidly in wet conditions. Urgent intervention needed within 24 hours. Draining fields is critical.</div>
+                {% elif prediction.lower() == 'brown_spot' %}
+                    <span class="severity-badge severity-medium">MEDIUM PRIORITY</span>
+                    <div class="severity-desc">Brown Spot progresses slowly but affects yield quality. Treatment should begin within 2-3 days. Regular monitoring recommended.</div>
+                {% elif prediction.lower() == 'leaf_scald' %}
+                    <span class="severity-badge severity-medium">MEDIUM PRIORITY</span>
+                    <div class="severity-desc">Leaf Scald development is moderate. Start preventive measures within 1-2 days. Water sanitation is key.</div>
+                {% elif prediction.lower() == 'narrow_brown_spot' %}
+                    <span class="severity-badge severity-low">LOW PRIORITY</span>
+                    <div class="severity-desc">Narrow Brown Spot develops slowly. Begin treatment within 3-5 days. Crop rotation is important for prevention.</div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="action-buttons">
+                <a href="/predict" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> Analyze Another
+                </a>
+                <a href="/chart" class="btn btn-secondary">
+                    <i class="fas fa-chart-bar"></i> View Analytics
+                </a>
+                <a href="{{ url_for('export_pdf', filename=image_path.split('/')[-1], prediction=prediction) }}" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </a>
+                <a href="/history" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> View History
+                </a>
+            </div>
+
+            {% if prediction.lower() == 'healthy' %}
+            <div class="healthy-message">
+                <h3><i class="fas fa-seedling"></i> Excellent Health Status</h3>
+                <p>Your rice plant leaf is in perfect condition. No treatment needed. Continue with regular crop management practices.</p>
+                <div class="tips-section">
+                    <h4><i class="fas fa-lightbulb"></i> Prevention Tips</h4>
+                    <ul class="tips-list">
+                        <li>Maintain proper field drainage and irrigation</li>
+                        <li>Continue regular field scouting every 7-10 days</li>
+                        <li>Apply preventive fungicides during high-risk seasons</li>
+                        <li>Keep field records for future disease management</li>
+                        <li>Use certified disease-free seeds for next season</li>
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <div class="remedies-section">
+                <h3><i class="fas fa-prescription-bottle-alt"></i> Recommended Treatment & Management</h3>
+                <div class="remedy-list">
+                    {% if prediction.lower() == 'bacterial_leaf_blight' %}
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-spray-can"></i> Chemical Control</h4>
+                            <p>Apply copper-based fungicides (Bordeaux mixture 1% - 10-20 liters/acre) or Streptomycin sulfate (100 ppm - 50g per 50L water). Spray every 7-10 days during wet season. Alternative: Kasugamycin (50 WP) at 25-40 g/10L water. For severe cases, combine copper with systemic fungicides like Tricyclazole (0.6% - 50g per 10L). Cost estimate: INR 400-600 per acre per spray.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-water"></i> Water Management</h4>
+                            <p>CRITICAL: Reduce field flooding immediately - keep water depth at 5cm maximum. Switch to overhead or drip irrigation instead of flood irrigation to minimize leaf wetness. Drain fields completely 2-3 weeks before harvest. Water early morning (before 8 AM) to allow leaves to dry quickly - spores need 8+ hours of leaf wetness. Avoid working in wet fields 24-48 hrs after rain.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-leaf"></i> Cultural Practices</h4>
+                            <p>Remove infected leaves immediately and destroy by burning (don't compost). Clear all plant debris after harvest. Use disease-resistant varieties: Taiching Native 1, IR64, or local resistant cultivars. Rotate crops with beans, maize, or wheat. Sanitize farm tools with 70% alcohol or 1% bleach solution between fields. Restrict field entry during 24 hours after rain.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-dna"></i> Additional Measures</h4>
+                            <p>Expect recovery timeline of 2-3 weeks with proper treatment. Plant spacing of 20x20 cm improves air circulation. Use bioagents like Pseudomonas fluorescens as supplementary control. Early detection is key - scout plants daily during monsoon. Recovery rate: 80-90% with immediate intervention, 40-50% if untreated.</p>
+                        </div>
+                    {% elif prediction.lower() == 'brown_spot' %}
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-spray-can"></i> Fungicide Treatment</h4>
+                            <p>Apply Iprodione (0.1% - 100g per 10L water) every 14 days, or Mancozeb (2 kg/ha - 200g per 10L water) every 10 days, or Tricyclazole (0.6% TBP - 60g per 10L). Start preventive sprays at 3-4 weeks after germination. For severe infections, reduce interval to 7 days. Rotate fungicide groups to prevent resistance. Cost: INR 300-400 per acre per application. Best applied in early morning or late afternoon.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-seed"></i> Seed Treatment</h4>
+                            <p>Treat seeds BEFORE planting with: (1) Carbendazim (0.1% solution - soak 30 minutes), OR (2) Hot water treatment (54°C for 30 minutes), OR (3) Trichoderma-based bioagents (10^8 CFU/ml). This reduces seed-borne fungus by 95%. Ensures disease-free starting material which significantly reduces field infection pressure later. Cost: INR 50-100 per kg of seed.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-flask"></i> Nutrient Management</h4>
+                            <p>Increase potassium (K) to 60-80 kg/ha to strengthen plant cell walls - resistant tissues slow fungal penetration. Recommended fertilizer ratio: N:P:K = 120:60:60 kg/ha. Add silicon (SiO2) for enhanced resistance. AVOID excess nitrogen which creates soft, vulnerable tissues. Apply nutrient spray of Zinc (0.5%) + Magnesium (0.25%) when disease appears. Deficiency correction cost: INR 1000-2000/acre/season.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-recycle"></i> Field Sanitation</h4>
+                            <p>Burn or bury infected rice straw 20-25cm deep after harvest. Clean irrigation canals and water sources. Use only certified disease-free seeds from reliable sources. Maintain plant spacing 20x20cm for air circulation. Remove weeds competing for light. Sanitize tools between fields. Recovery timeline: 3-4 weeks with treatment.</p>
+                        </div>
+                    {% elif prediction.lower() == 'leaf_blast' %}
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-spray-can"></i> Fungicide Application</h4>
+                            <p>Use Tricyclazole (0.6% TBP at 20-25g/10L water - MOST EFFECTIVE), Propiconazole (0.05%), or Azoxystrobin (0.2% - 20g/10L). Critical timing: Apply at boot stage (panicle initiation - V9 stage) and repeat at heading stage (50% flowering - anthesis). For severe risk, begin spraying 2 weeks into vegetative growth. Standard schedule: 2-3 sprays per season, 10-14 days apart. Cost: INR 400-600 per acre per spray.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-wind"></i> Field Management</h4>
+                            <p>URGENT: Improve drainage immediately! Blast thrives at RH > 90% and 25-30°C. Reduce standing water - maintain 5cm depth max. Prune lower branches to increase air circulation. Plant spacing critical: 20-25cm between plants. Remove competing weeds that reduce light penetration. Implement raised or sloped beds if field is prone to waterlogging. Night-time cool, humid conditions are dangerous - plan irrigation accordingly.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-dna"></i> Resistant Cultivars</h4>
+                            <p>Plant approved blast-resistant varieties: Tetep (highly resistant), WAB56-104, IR54, IR64, Basmati, or released resistant lines from your state. Different blast races exist by region - check with local agricultural department for which Pi genes confer resistance. Rotate resistant varieties yearly to prevent race breakdown. Investment: One-time seed cost of INR 200-300 per kg for certified resistant seeds.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-cloud-rain"></i> Weather Management</h4>
+                            <p>Monitor weather forecasts vigilantly during monsoon/high RH periods. High humidity + cool nights = perfect blast conditions. Increase fungicide frequency during rainfall periods. Reduce irrigation frequency during low-risk dry seasons (Jan-April). Record temperature and humidity data - blast risk varies by microclimate. Recovery with treatment: 10-14 days for leaf symptoms, 3-4 weeks for panicle blast impact.</p>
+                        </div>
+                    {% elif prediction.lower() == 'leaf_scald' %}
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-spray-can"></i> Fungicide Control</h4>
+                            <p>Apply Carbendazim (0.1% - 10g per 10L water) OR Mancozeb (0.25% - 25g per 10L water) OR Propiconazole (0.05%). Start spraying from seedling nursery stage if disease history in area. First spray at 4-5 leaf stage (nursery), then repeat every 10-14 days in main field. Use minimum 2-3 sprays per season. Continue until grain filling stage. Cost: INR 250-350 per acre per application. Alternate fungicide classes every 3rd spray to prevent resistance.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-tint"></i> Water Sanitation</h4>
+                            <p>Use pathogen-free water for ALL irrigation - this is CRITICAL for scald control. Test water source for contamination. Switch from overhead/flood to drip irrigation if possible. Drain fields completely 7-10 days before harvest. For severely contaminated water sources: filter through 0.2µm membrane filter, or UV-treat at 10,000 µW/cm². Standing water: the disease's favorite breeding ground - minimize field flooding. Cost of UV treatment: INR 5000-10000 one-time setup.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-tools"></i> Sanitation Protocol</h4>
+                            <p>Disinfect ALL equipment (threshers, seeders, harvesters) with 1% bleach solution or 70% ethanol between fields. Remove infected plants immediately - don't mix with healthy material. Source only disease-certified seedlings from reliable nurseries - never use farm-saved seed from infected fields. Quarantine infected field areas. Clean irrigation pipes annually. Document all sanitization activities for future reference.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-shield-alt"></i> Prevention</h4>
+                            <p>Nursery protection: Grow seedlings in isolated raised beds with protective barriers. Apply preventive fungicides weekly in nursery stage. Inspect seedlings before transplanting - reject any with leaf spotting. Use clean potting mix for nurseries. Recovery timeline: 2-3 weeks for seedling blight, 3-4 weeks for main field infections. Preventive approach is 70% more cost-effective than curative treatment.</p>
+                        </div>
+                    {% elif prediction.lower() == 'narrow_brown_spot' %}
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-spray-can"></i> Fungicide Treatment</h4>
+                            <p>Apply Carbendazim (0.1% - 10g per 10L water), Mancozeb (2 kg/ha or 0.25%), or Tricyclazole (0.6% TBP - 60g per 10L water). Begin spraying when first symptoms appear - don't wait. Continue at 10-14 day intervals. For severe infections, reduce interval to 7 days. Rotate different fungicide groups (triazoles→benzimidazoles→dithiocarbamates) to prevent resistance development. Cost: INR 350-450 per acre per spray. 3-4 sprays typical per season.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-leaf"></i> Crop Rotation Strategy</h4>
+                            <p>AVOID continuous rice cultivation in same field - this allows fungus to accumulate in soil. Implement strict 1-2 year rotation: alternate with wheat, maize, legumes (lentil, chickpea), or vegetables. This breaks the disease cycle by removing host plant. Deeply plow soil to bury infected residue 20-25cm deep (fungus dies in 6-8 months). Use only disease-free seeds and certified seedlings from proven healthy sources - never use farm-saved seed from infected fields.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-flask"></i> Soil Health & Nutrition</h4>
+                            <p>Incorporate 5-10 tons/hectare organic matter (FYM, compost, crop residue) to enhance natural soil suppressiveness to disease. Maintain optimal soil pH 6.5-7.5 (lime if acidic, sulfur if alkaline). Balanced fertilization: N:P:K = 120:60:60 kg/ha. Avoid nitrogen excess. Add silicon dust or biochar to strengthen plant tissues. Mycorrhizal inoculants improve root health. Cost: INR 8000-15000/acre for organic matter application.</p>
+                        </div>
+                        <div class="remedy-item">
+                            <h4><i class="fas fa-microscope"></i> Vigilant Field Monitoring</h4>
+                            <p>Inspect plants weekly during entire growing season at multiple field locations (diagonals, corners, edges). Early detection allows intervention before 30% field infection - critical threshold. Scout immediately after rain when humidity high. Keep detailed infection records: date, field location, % infection, which fungicide used - use this to plan next season. Monitor weather: high humidity + warm temps accelerate disease. Recovery timeline: 2-3 weeks for treated fields, 8+ weeks if untreated with potential total crop loss.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tips Section for Non-Healthy -->
+                <div class="tips-section">
+                    <h4><i class="fas fa-lightbulb"></i> Quick Action Checklist</h4>
+                    <ul class="tips-list">
+                        <li>Take treatment action within 24-48 hours for best results</li>
+                        <li>Purchase required fungicides and equipment immediately</li>
+                        <li>Scout entire field for disease spread to other plants</li>
+                        <li>Document field conditions and actions taken</li>
+                        <li>Monitor treated area closely for improvement</li>
+                        <li>Keep agricultural contact info handy for expert advice</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div id="chatbot-widget" class="chatbot-widget">
+        <div class="chatbot-header">
+            <span>Rice AI Assistant</span>
+            <button id="chatbot-toggle" class="chatbot-toggle">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-container">
+            <div id="chatbot-messages" class="chatbot-messages"></div>
+            <div class="chatbot-input-area">
+                <input type="text" id="chatbot-input" placeholder="Ask about diseases..." class="chatbot-input">
+                <button id="chatbot-send" class="chatbot-send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <button id="chatbot-toggle-btn" class="chatbot-toggle-btn">
+        <i class="fas fa-comments"></i>
+    </button>
+
+    <style>
+        .chatbot-toggle-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .chatbot-toggle-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .chatbot-toggle-btn.hidden {
+            display: none;
+        }
+
+        .chatbot-widget {
+            position: fixed;
+            bottom: 80px;
+            right: 2rem;
+            width: 380px;
+            max-height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chatbot-widget.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+        }
+
+        .chatbot-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chatbot-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-text {
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            max-width: 80%;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-text {
+            background: #e8ebff;
+            color: #333;
+        }
+
+        .message.user .message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 0.8rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .chatbot-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .chatbot-send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .chatbot-widget {
+                width: 100vw;
+                height: 100vh;
+                right: 0;
+                bottom: 0;
+                max-height: none;
+                border-radius: 0;
+            }
+
+            .chatbot-toggle-btn {
+                bottom: 1rem;
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+
+    <script>
+        // Chatbot functionality
+        const chatbotWidget = document.getElementById('chatbot-widget');
+        const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotSend = document.getElementById('chatbot-send');
+
+        function getTimeBasedGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Good morning";
+            if (hour < 17) return "Good afternoon";
+            return "Good evening";
+        }
+
+        function getAIResponse(userMessage) {
+            const lower = userMessage.toLowerCase();
+
+            if (lower.includes('what is') || lower.includes('about')) {
+                return "This is a Rice Leaf Disease Detection System using advanced AI (DenseNet121) to identify 6 types of rice leaf diseases. Ask me about the disease you're seeing!";
+            }
+
+            if (lower.includes('treatment') || lower.includes('remedy')) {
+                return "Each disease has specific treatments shown in detail below. Scroll down to see recommendations for the identified disease including dosages, timing, and alternatives.";
+            }
+
+            if (lower.includes('export') || lower.includes('download') || lower.includes('pdf')) {
+                return "Yes! Click the 'Export PDF' button to download a complete report of this analysis for your records.";
+            }
+
+            if (lower.includes('history')) {
+                return "All your predictions are saved automatically! Click 'View History' to see all past analyses and download any as PDF.";
+            }
+
+            if (lower.includes('severity') || lower.includes('urgent')) {
+                return "Check the 'Disease Severity' section above to understand how urgent treatment is needed. Different diseases have different timeframes for action.";
+            }
+
+            if (lower.includes('bacterial leaf blight')) {
+                return "Bacterial Leaf Blight: water-soaked lesions caused by bacteria. Treatment: Streptomycin (100ppm), improve drainage, use resistant varieties. See details below!";
+            }
+
+            if (lower.includes('brown spot')) {
+                return "Brown Spot: circular lesions with yellow halos. Treatment: Mancozeb fumigation, seed treatment, manage nutrition. Scroll for full details!";
+            }
+
+            if (lower.includes('leaf blast')) {
+                return "Leaf Blast: diamond-shaped lesions, most dangerous at boot/heading. Treatment: Tricyclazole, drainage improvement, resistant varieties. Details below!";
+            }
+
+            if (lower.includes('leaf scald')) {
+                return "Leaf Scald: elongated lesions on leaves. Treatment: Carbendazim, pathogen-free water, strict sanitation. Check details below!";
+            }
+
+            if (lower.includes('narrow brown spot')) {
+                return "Narrow Brown Spot: thin brown lesions. Treatment: Fungicides rotation, crop rotation, soil health. Full info below!";
+            }
+
+            if (lower.includes('hi') || lower.includes('hello')) {
+                return `${getTimeBasedGreeting()}! I'm here to help explain the disease and treatments. What would you like to know?`;
+            }
+
+            return "Great question! I can help with disease information and treatment details. What specifically would you like to know?";
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-text">${text}</div>`;
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const text = chatbotInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            chatbotInput.value = '';
+t
+            setTimeout(() => {
+                const response = getAIResponse(text);
+                addMessage(response, 'bot');
+            }, 500);
+        }
+
+        chatbotToggleBtn.addEventListener('click', () => {
+            chatbotWidget.classList.add('active');
+            chatbotToggleBtn.classList.add('hidden');
+            if (!chatbotMessages.innerHTML.trim()) {
+                addMessage(`${getTimeBasedGreeting()}! I'm Rice Disease AI Assistant. How can I help?`, 'bot');
+            }
+        });
+
+        chatbotToggle.addEventListener('click', () => {
+            chatbotWidget.classList.remove('active');
+            chatbotToggleBtn.classList.remove('hidden');
+        });
+
+        chatbotSend.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>

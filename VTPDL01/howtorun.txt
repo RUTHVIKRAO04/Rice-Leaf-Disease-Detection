@@ -1,0 +1,130 @@
+Here is a **clean, professional `HOW_TO_RUN.txt` version** suitable for your project submission or poster demo.
+
+---
+
+# How to Run the Rice Leaf Disease Prediction Application
+
+## 1. Navigate to the Project Folder
+
+Open Terminal or Command Prompt and move to the project directory:
+
+```
+cd VTPDL01/CODE
+```
+
+If your path contains spaces, use quotes:
+
+```
+cd 
+/Users/ruthvik/Desktop/Major\ Project/VTPDL01/VTPDL01/CODE
+```
+
+---
+
+# 2. Create a Virtual Environment (Recommended)
+
+```
+python3 -m venv venv
+```
+
+This creates a virtual environment named **venv** inside the project folder.
+
+---
+
+# 3. Activate the Virtual Environment
+
+### Windows
+
+```
+venv\Scripts\activate
+```
+
+### macOS / Linux
+
+```
+source venv/bin/activate
+```
+
+After activation you will see:
+
+```
+(venv)
+```
+
+in the terminal.
+
+---
+
+# 4. Install Required Dependencies
+
+Install all required Python packages using:
+
+```
+pip install -r requirements.txt
+```
+
+---
+
+# 5. Verify Model File
+
+Ensure the trained model file exists in the project folder:
+
+```
+rice_leaf_densenet121_final_model.keras
+```
+
+This file is required for disease prediction.
+
+---
+
+# 6. Run the Flask Application
+
+Start the web application using:
+
+```
+python app.py
+```
+
+---
+
+# 7. Open the Application in Browser
+
+Open your browser and go to:
+
+```
+http://127.0.0.1:5000/
+```
+
+The web application will start and display the **Rice Leaf Disease Prediction Interface**.
+
+---
+
+# Application Usage
+
+1. Register a new account or login.
+2. Upload an image of a rice leaf.
+3. The system predicts the disease using the trained DenseNet121 model.
+4. The prediction result is displayed on the results page.
+
+---
+
+# Additional Information
+
+* Uploaded images are stored in the **uploads/** folder.
+* HTML pages are stored in the **templates/** folder.
+* CSS/JS files are stored in the **static/** folder.
+* Model training code is available in **Untitled.ipynb**.
+
+---
+
+# Deactivate Virtual Environment
+
+When finished, deactivate the environment using:
+
+```
+deactivate
+```
+
+---
+
+If you want, I can also give you a **much shorter “3-command quick run” version** that looks better in **project documentation or GitHub README**.

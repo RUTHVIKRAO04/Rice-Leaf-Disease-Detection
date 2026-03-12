@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disease Prediction - Rice Leaf AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .navbar a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .navbar a:hover {
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .upload-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-header h1 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-header p {
+            color: #999;
+            font-size: 0.95rem;
+        }
+
+        .upload-zone {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            position: relative;
+            z-index: 1;
+        }
+
+        .upload-zone:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .upload-zone.dragover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e8ebff 0%, #e0e6ff 100%);
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .upload-text {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .file-requirements {
+            background: #f0f2ff;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #preview {
+            margin-top: 2rem;
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            display: none;
+        }
+
+        .preview-container {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .preview-label {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .btn-predict {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-predict:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-predict:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .file-name {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .upload-card {
+                padding: 1.5rem;
+            }
+
+            .upload-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .navbar-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-leaf"></i>
+            <span>Disdet AI</span>
+        </div>
+        <ul class="navbar-links">
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/predict"><i class="fas fa-image"></i> Predict</a></li>
+            <li><a href="/history"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="/chart"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="upload-card">
+            <div class="upload-header">
+                <h1>Analyze Rice Leaf</h1>
+                <p>Upload an image to detect diseases</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">�️</div>
+                    <div class="upload-text">Click to upload or drag & drop</div>
+                    <div class="upload-subtext">Your rice leaf image here</div>
+                    <div class="file-requirements">
+                        <i class="fas fa-info-circle"></i> JPG, PNG or GIF • Max 10MB • High resolution recommended
+                    </div>
+                    <input type="file" name="file" id="fileInput" accept="image/*" required>
+                </div>
+
+                <div class="preview-container">
+                    <div class="preview-label" id="previewLabel" style="display:none;">
+                        <i class="fas fa-check-circle"></i> Image Preview
+                    </div>
+                    <img id="preview" alt="Preview">
+                    <div class="file-name" id="fileName"></div>
+                </div>
+
+                <button type="submit" class="btn-predict">
+                    <i class="fas fa-brain"></i> Analyze Image
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const previewLabel = document.getElementById('previewLabel');
+        const fileName = document.getElementById('fileName');
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            previewImage();
+        });
+
+        fileInput.addEventListener('change', previewImage);
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function previewImage() {
+            const file = fileInput.files[0];
+            if (file) {
+                // Check file size (max 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size exceeds 10MB limit. Please choose a smaller file.');
+                    fileInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    previewLabel.style.display = 'inline-block';
+                    const fileSize = formatFileSize(file.size);
+                    fileName.textContent = `📄 ${file.name} (${fileSize})`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
