@@ -25,8 +25,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 HISTORY_FILE = 'prediction_history.json'
 
 # Load trained model
-model = load_model('rice_leaf_densenet121_final_model.keras')
-
+model = load_model('VTPDL01/CODE/rice_leaf_densenet121_final_model.keras')
 # Class labels
 class_names = ['bacterial_leaf_blight', 'brown_spot', 'healthy', 'leaf_blast', 'leaf_scald', 'narrow_brown_spot']
 
