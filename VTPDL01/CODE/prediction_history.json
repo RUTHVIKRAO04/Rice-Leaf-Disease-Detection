@@ -24,6 +24,11 @@
       "filename": "narrow-brown-leaf-spot-of-rice-2.jpg",
       "prediction": "narrow_brown_spot",
       "timestamp": "2026-03-12 22:45:38"
+    },
+    {
+      "filename": "leaf_blast_val (47).jpg",
+      "prediction": "leaf_blast",
+      "timestamp": "2026-03-13 11:52:44"
     }
   ],
   "s": [

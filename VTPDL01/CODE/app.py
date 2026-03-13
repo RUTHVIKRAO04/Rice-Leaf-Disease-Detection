@@ -25,7 +25,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 HISTORY_FILE = 'prediction_history.json'
 
 # Load trained model
-model = load_model('VTPDL01/CODE/rice_leaf_densenet121_final_model.keras')
+model = load_model('rice_leaf_densenet121_final_model.keras')
 # Class labels
 class_names = ['bacterial_leaf_blight', 'brown_spot', 'healthy', 'leaf_blast', 'leaf_scald', 'narrow_brown_spot']
 
@@ -273,5 +273,4 @@ def chart():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
